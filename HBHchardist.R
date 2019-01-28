@@ -20,10 +20,19 @@ hbh <- within(hbh,
               Character <- factor(Character, 
                               levels=names(sort(table(Character), decreasing=FALSE))))
 
+# Summarizing
+# Date count
+hbh_bydate <- hbh %>% 
+  group_by(Date) %>%
+  summarise(n = n()) 
+hbh_bydate
+
+# Character count
 hbh_count <- hbh %>% 
   group_by(Class, Character) %>%
   summarise(n = n()) %>%
   ungroup()
+hbh_count
 
 # stacked bar 
 ggplot(hbh_count, aes(x = Class, y = n, fill = Character)) + 
