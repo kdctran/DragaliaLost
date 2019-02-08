@@ -32,7 +32,8 @@ ui <- fluidPage(
     
     # main panel
     mainPanel(
-      plotOutput(outputId = "charPlot")
+      # plotly instead of plot because using Plotly package
+      plotlyOutput(outputId = "charPlot")
     )
   )
 )
@@ -40,10 +41,10 @@ ui <- fluidPage(
 
 # server function
 server <- function(input, output) {
-  output$charPlot <- renderPlot({
+  output$charPlot <- renderPlotly({
     
     # filter by element/weapon/class
-    charfilter <- charlist %>%
+    p <- charlist %>%
       filter(if (input$Element != "All") {
                Element == input$Element
              } else TRUE) %>%
@@ -55,9 +56,13 @@ server <- function(input, output) {
       } else TRUE)
     
     # ggplot
-    charfilter %>%
-      ggplot() +
-      geom_point(aes(HP, STR, colour = Element), size = 3) +
+    p <- p %>%
+      ggplot(aes(x = HP, y = STR, colour = Element,
+                 label = Name,
+                 label2 = HP,
+                 label3 = STR,
+                 label4 = Weapon)) +
+      geom_point(size = 3) +
       scale_color_manual(values = c("Flame" = "red2", 
                                     "Water" = "dodgerblue1",
                                     "Wind" = "green",
@@ -71,10 +76,13 @@ server <- function(input, output) {
       
       # box around legend
       theme(legend.box.background = element_rect(color = "burlywood3", size = 1),
-            legend.box.margin = margin(6, 6, 6, 6)
-    )
-  }
+            legend.box.margin = margin(6, 6, 6, 6))
     
+    p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
+      config(displayModeBar = F) # hide plotly mode bar
+    p
+  }
+   
   )
 }
 
