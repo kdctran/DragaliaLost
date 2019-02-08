@@ -1,5 +1,5 @@
 library(shiny)
-library(ggplot2)
+library(plotly)
 library(tidyverse)
 
 charlist <- read_rds("characterlist.rds")
@@ -18,12 +18,12 @@ ui <- fluidPage(
                   selected = NULL,
                   multiple = F),
       
-      selectInput(inputId = "method", 
+      selectInput(inputId = "Weapon", 
                   selected = NULL,
-                  label = "Select a weapon Type",
+                  label = "Select a Weapon Type",
                   choices = c("All", distinct(charlist, Weapon))),
       
-      selectInput(inputId = "method", 
+      selectInput(inputId = "Class", 
                   selected = NULL,
                   label = "Select a Class",
                   choices = c("All", distinct(charlist, Class))),
@@ -42,7 +42,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   output$charPlot <- renderPlot({
     
-    # filter by element
+    # filter by element/weapon/class
     charfilter <- charlist %>%
       filter(if (input$Element != "All") {
                Element == input$Element
@@ -54,6 +54,7 @@ server <- function(input, output) {
         Element == input$Class
       } else TRUE)
     
+    # ggplot
     charfilter %>%
       ggplot() +
       geom_point(aes(HP, STR, colour = Element), size = 3) +
@@ -63,8 +64,15 @@ server <- function(input, output) {
                                     "Light" = "gold",
                                     "Shadow" = "purple")) +
       theme_bw() + 
-      theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-                         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+      theme(panel.border = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            axis.line = element_line(colour = "black")) +
+      
+      # box around legend
+      theme(legend.box.background = element_rect(color = "burlywood3", size = 1),
+            legend.box.margin = margin(6, 6, 6, 6)
+    )
   }
     
   )
