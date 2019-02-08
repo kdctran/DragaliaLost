@@ -32,9 +32,22 @@ p <- char %>%
   
   # box around legend
   theme(legend.box.background = element_rect(color = "burlywood3", size = 1),
-        legend.box.margin = margin(6, 6, 6, 6))
+        legend.box.margin = margin(6, 6, 6, 6)) +
+  
+  # reference y = x line
+  geom_abline(slope = 1, intercept = 0)
 
-p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4"))
+legend.format <- list(
+  font = list(
+    family = "sans-serif",
+    size = 12,
+    color = "black"),
+  bgcolor = "gainsboro",
+  bordercolor = "white",
+  borderwidth = 2)
+
+p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
+  layout(legend = legend.format)
 p
 # p + geom_abline(slope = 1, intercept = 0) +
 #   lims(x = c(600,850), y = c(390,750))

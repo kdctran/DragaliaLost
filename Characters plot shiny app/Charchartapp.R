@@ -55,14 +55,14 @@ server <- function(input, output) {
         Element == input$Class
       } else TRUE)
     
-    # ggplot
+    # plot with ggplot & plotly
     p <- p %>%
       ggplot(aes(x = HP, y = STR, colour = Element,
                  label = Name,
                  label2 = HP,
                  label3 = STR,
                  label4 = Weapon)) +
-      geom_point(size = 3) +
+      geom_point(size = 2) +
       scale_color_manual(values = c("Flame" = "red2", 
                                     "Water" = "dodgerblue1",
                                     "Wind" = "green",
@@ -74,12 +74,23 @@ server <- function(input, output) {
             panel.grid.minor = element_blank(), 
             axis.line = element_line(colour = "black")) +
       
-      # box around legend
-      theme(legend.box.background = element_rect(color = "burlywood3", size = 1),
-            legend.box.margin = margin(6, 6, 6, 6))
+      # reference y = x line
+      geom_abline(slope = 1, intercept = 0)
+    
+    # format legend box
+    legend.format <- list(
+      font = list(
+        family = "sans-serif",
+        size = 12,
+        color = "black"),
+      bgcolor = "gainsboro",
+      bordercolor = "white",
+      borderwidth = 2)
     
     p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
-      config(displayModeBar = F) # hide plotly mode bar
+      # hide plotly mode bar
+      config(displayModeBar = F) %>% 
+      layout(legend = legend.format)
     p
   }
    
