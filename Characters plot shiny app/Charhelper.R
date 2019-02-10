@@ -1,4 +1,3 @@
-#install.packages("googlesheets", dependencies = T)
 library(googlesheets)
 library(tidyverse)
 library(plotly)
@@ -32,10 +31,26 @@ p <- char %>%
   
   # box around legend
   theme(legend.box.background = element_rect(color = "burlywood3", size = 1),
-        legend.box.margin = margin(6, 6, 6, 6)) +
-  
-  # reference y = x line
-  geom_abline(slope = 1, intercept = 0)
+        legend.box.margin = margin(6, 6, 6, 6)) 
+
+p2 <- char %>%
+  filter(Weapon == "Staff") %>%
+  ggplot(aes(x = HP, y = STR,
+             label = Name,
+             label2 = STR,
+             label3 = HP,
+             label4 = Weapon)) +
+  geom_point(aes(colour = Element), size = 3) +
+  scale_color_manual(values = c("Flame" = "red2", 
+                                "Water" = "dodgerblue1",
+                                "Wind" = "green",
+                                "Light" = "gold",
+                                "Shadow" = "purple")) +
+  geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
+              method = "lm", 
+              formula = y ~ x, 
+              colour = "black")
+p2
 
 legend.format <- list(
   font = list(

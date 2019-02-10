@@ -45,15 +45,15 @@ server <- function(input, output) {
     
     # filter by element/weapon/class
     p <- charlist %>%
-      filter(if (input$Element != "All") {
-               Element == input$Element
-             } else TRUE) %>%
-      filter(if (input$Weapon != "All") {
-        Element == input$Weapon
-      } else TRUE) %>%
+      filter(if(input$Element != "All") {
+        Element == input$Element
+        } else TRUE) %>%
+      filter(if(input$Weapon != "All") {
+        Weapon == input$Weapon
+        } else TRUE) %>%
       filter(if (input$Class != "All") {
-        Element == input$Class
-      } else TRUE)
+        Class == input$Class
+        } else TRUE)
     
     # plot with ggplot & plotly
     p <- p %>%
@@ -74,8 +74,11 @@ server <- function(input, output) {
             panel.grid.minor = element_blank(), 
             axis.line = element_line(colour = "black")) +
       
-      # reference y = x line
-      geom_abline(slope = 1, intercept = 0)
+      geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
+                  method = "lm", 
+                  formula = y ~ x, 
+                  colour = "black",
+                  size = 0.3)
     
     # format legend box
     legend.format <- list(
@@ -83,7 +86,7 @@ server <- function(input, output) {
         family = "sans-serif",
         size = 12,
         color = "black"),
-      bgcolor = "gainsboro",
+      bgcolor = "floralwhite",
       bordercolor = "white",
       borderwidth = 2)
     
