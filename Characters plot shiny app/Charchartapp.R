@@ -106,6 +106,12 @@ server <- function(input, output) {
     
     p <- plotdl(data)
     
+    p <- p + geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
+                method = "lm", 
+                formula = y ~ x, 
+                colour = "black",
+                size = 0.3)
+    
     # coord to display equation
     display.x <- (max(data$HP) + min(data$HP)) / 2
     display.y <- max(data$STR) + 10
