@@ -43,53 +43,83 @@ ui <- fluidPage(
 server <- function(input, output) {
   output$charPlot <- renderPlotly({
     
-    # filter by element/weapon/class
-    p <- charlist %>%
-      filter(if(input$Element != "All") {
-        Element == input$Element
-        } else TRUE) %>%
-      filter(if(input$Weapon != "All") {
-        Weapon == input$Weapon
-        } else TRUE) %>%
-      filter(if (input$Class != "All") {
-        Class == input$Class
-        } else TRUE)
-    
-    # plot with ggplot & plotly
-    p <- p %>%
-      ggplot(aes(x = HP, y = STR, colour = Element,
-                 label = Name,
-                 label2 = HP,
-                 label3 = STR,
-                 label4 = Weapon)) +
-      geom_point(size = 2) +
-      scale_color_manual(values = c("Flame" = "red2", 
-                                    "Water" = "dodgerblue1",
-                                    "Wind" = "green",
-                                    "Light" = "gold",
-                                    "Shadow" = "purple")) +
-      theme_bw() + 
-      theme(panel.border = element_blank(), 
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(), 
-            axis.line = element_line(colour = "black")) +
+    # functions for plotting and best fit equation
+    # plot function
+    plotdl <- function(df){
+      myplot <- ggplot(df, aes(x = HP, y = STR, colour = Element,
+                                 label = Name,
+                                 label2 = STR,
+                                 label3 = HP,
+                                 label4 = Weapon)) +
+        geom_point(size = 2) +
+        scale_color_manual(values = c("Flame" = "red2", 
+                                      "Water" = "dodgerblue1",
+                                      "Wind" = "green",
+                                      "Light" = "gold",
+                                      "Shadow" = "purple")) +
+        theme_bw() + 
+        theme(panel.border = element_blank(), 
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(), 
+              axis.line = element_line(colour = "black"))
       
-      geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
-                  method = "lm", 
-                  formula = y ~ x, 
-                  colour = "black",
-                  size = 0.3)
+      # return plot
+      myplot
+    }
     
-    # format legend box
-    legend.format <- list(
-      font = list(
-        family = "sans-serif",
-        size = 12,
-        color = "black"),
-      bgcolor = "floralwhite",
-      bordercolor = "white",
-      borderwidth = 2)
+    # function to create equation expression
+    lm_eqn = function(df){
+      m <- lm(df$STR ~ df$HP)
+      a <- signif(coef(m)[1], digits = 2)
+      b <- signif(coef(m)[2], digits = 2)
+      textlab <- paste("STR = ", b, "HP + ", a, sep = "")                
+    }
     
+    
+    # filter by element/weapon/class
+    data <- charlist 
+    
+    if (input$Element != "All") {
+      data <- data %>%
+        filter(Element == input$Element)
+    }
+    if (input$Weapon != "All") {
+      data <- data %>%
+        filter(Weapon == input$Weapon)
+    }
+    if (input$Class != "All") {
+      data <- data %>%
+        filter(Class == input$Class)
+    }
+    
+    # filter for best fit line
+    # if ((input$Weapon != "All") & (input$Class != "All")) {
+    #   
+    # }
+    
+    legend.format <- list(font = list(family = "sans-serif",
+                                      size = 12,
+                                      color = "black"),
+                          bgcolor = "lavender",
+                          bordercolor = "white",
+                          borderwidth = 3)
+    
+    p <- plotdl(data)
+    
+    # coord to display equation
+    display.x <- (max(data$HP) + min(data$HP)) / 2
+    display.y <- max(data$STR) + 10
+    
+    # add regression equation using geom_text
+    # p <- p + geom_text(aes(x = display.x, y = display.y, 
+    #                         label = lm_eqn(data), 
+    #                     color="black", size=4, parse = TRUE)
+    # 
+    # add regression equation using annotate
+    p <- p + annotate("text", x = display.x, y = display.y,
+                      label = lm_eqn(data),
+                      color="black", size = 4)
+
     p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
       # hide plotly mode bar
       config(displayModeBar = F) %>% 
