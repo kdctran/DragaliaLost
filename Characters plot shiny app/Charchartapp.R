@@ -1,6 +1,7 @@
 library(shiny)
 library(plotly)
 library(tidyverse)
+library(DT)
 
 charlist <- read_rds("characterlist.rds")
 
@@ -12,6 +13,11 @@ ui <- fluidPage(
   # sidebar
   sidebarLayout(
     sidebarPanel(
+      selectInput(inputId = "Rarity", 
+                  selected = NULL,
+                  label = "Select a Rarity",
+                  choices = c("All", distinct(charlist, Rarity))),
+      
       selectInput(inputId = "Element", 
                   label = "Select an Element",
                   choices = c("All", distinct(charlist, Element)),
@@ -33,7 +39,8 @@ ui <- fluidPage(
     # main panel
     mainPanel(
       # plotly instead of plot because using Plotly package
-      plotlyOutput(outputId = "charPlot")
+      plotlyOutput(outputId = "charPlot"),
+      tableOutput(outputId = "table")
     )
   )
 )
@@ -51,7 +58,8 @@ server <- function(input, output) {
                                  label2 = STR,
                                  label3 = HP,
                                  label4 = Weapon)) +
-        geom_point(size = 2) +
+        geom_point(position = position_jitter(h = 2, w = 2),
+                   size = 2) +
         scale_color_manual(values = c("Flame" = "red2", 
                                       "Water" = "dodgerblue1",
                                       "Wind" = "green",
@@ -67,18 +75,13 @@ server <- function(input, output) {
       myplot
     }
     
-    # function to create equation expression
-    lm_eqn = function(df){
-      m <- lm(df$STR ~ df$HP)
-      a <- signif(coef(m)[1], digits = 2)
-      b <- signif(coef(m)[2], digits = 2)
-      textlab <- paste("STR = ", b, "HP + ", a, sep = "")                
-    }
-    
-    
     # filter by element/weapon/class
     data <- charlist 
     
+    if (input$Rarity != "All") {
+      data <- data %>%
+        filter(Rarity == input$Rarity)
+    }
     if (input$Element != "All") {
       data <- data %>%
         filter(Element == input$Element)
@@ -91,6 +94,12 @@ server <- function(input, output) {
       data <- data %>%
         filter(Class == input$Class)
     }
+    
+    # best fit line
+    m <- lm(data$STR ~ data$HP)
+    intercept <- signif(coef(m)[1], digits = 2)
+    slope <- signif(coef(m)[2], digits = 2)
+    textlab <- paste("STR = ", slope, "HP + ", intercept, sep = "")
     
     # filter for best fit line
     # if ((input$Weapon != "All") & (input$Class != "All")) {
@@ -106,24 +115,17 @@ server <- function(input, output) {
     
     p <- plotdl(data)
     
-    p <- p + geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
-                method = "lm", 
-                formula = y ~ x, 
-                colour = "black",
-                size = 0.3)
+    p <- p + geom_abline(intercept = intercept, slope = slope,
+                         colour = "grey30", linetype = "dashed",
+                         size = 0.3)
     
     # coord to display equation
     display.x <- (max(data$HP) + min(data$HP)) / 2
     display.y <- max(data$STR) + 10
     
-    # add regression equation using geom_text
-    # p <- p + geom_text(aes(x = display.x, y = display.y, 
-    #                         label = lm_eqn(data), 
-    #                     color="black", size=4, parse = TRUE)
-    # 
     # add regression equation using annotate
     p <- p + annotate("text", x = display.x, y = display.y,
-                      label = lm_eqn(data),
+                      label = textlab,
                       color="black", size = 4)
 
     p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
@@ -131,9 +133,31 @@ server <- function(input, output) {
       config(displayModeBar = F) %>% 
       layout(legend = legend.format)
     p
-  }
-   
-  )
+  })
+  
+  output$table <- renderTable({
+    data <- charlist 
+    
+    if (input$Rarity != "All") {
+      data <- data %>%
+        filter(Rarity == input$Rarity)
+    }
+    if (input$Element != "All") {
+      data <- data %>%
+        filter(Element == input$Element)
+    }
+    if (input$Weapon != "All") {
+      data <- data %>%
+        filter(Weapon == input$Weapon)
+    }
+    if (input$Class != "All") {
+      data <- data %>%
+        filter(Class == input$Class)
+    }
+
+    data <- data %>%
+      select(-Def, -Skill1, -Skill2, -Released)
+  })
 }
 
 # run the application 
