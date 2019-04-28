@@ -1,76 +1,141 @@
-library(googlesheets)
+library(rvest)
 library(tidyverse)
-library(plotly)
 
-my_sheets <- gs_ls() #get list of google sheet in my account
-be <- gs_title("Characters")
-gs_ws_ls(be)
-char <- gs_read(ss=be, ws = "Sheet1", skip=0)
+url <- "https://dragalialost.gamepedia.com/Adventurer_Detailed_List"
+
+list_gamepedia <- url %>%
+  xml2::read_html() %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div/div[3]/div/table') %>%
+  html_table()
+list_gamepedia <- list_gamepedia [[1]]
+
+names(list_gamepedia)
+
+char <- list_gamepedia %>%
+  rename(HP = "HPMax 5  HP with Max Mana Circle Stats",
+         STR = "StrMax 5  Str with Max Mana Circle Stats",
+         Coability = "Co-AbilityAbility shown is the max upgraded ability.",
+         Ability1 = "Ability 1Ability shown is the max upgraded ability.",
+         Ability2 = "Ability 2Ability shown is the max upgraded ability.",
+         Ability3 = "Ability 3Ability shown is the max upgraded ability.",
+         ReleaseDate = "Release Date") %>%
+  select(Name, Class, Rarity, Element, Weapon, HP, STR, Obtain)
+
+char <- char %>%
+  mutate(Class = case_when(
+    Name == "Addis" ~ "Attack",
+    Name == "Aeleen" ~ "Support",
+    Name == "Alain" ~ "Defense",
+    Name == "Albert" ~ "Attack",
+    Name == "Alex" ~ "Attack",
+    Name == "Alfonse" ~ "Attack",
+    Name == "Althemia" ~ "Support",
+    Name == "Amane" ~ "Attack",
+    Name == "Annelie" ~ "Support",
+    Name == "Aoi" ~ "Attack",
+    Name == "Aurien" ~ "Support",
+    Name == "Berserker" ~ "Defense",
+    Name == "Botan" ~ "Defense",
+    Name == "Celliera" ~ "Attack",
+    Name == "Cibella" ~ "Defense",
+    Name == "Cleo" ~ "Heal",
+    Name == "Curran" ~ "Attack",
+    Name == "Dragonyule Cleo" ~ "Support",
+    Name == "Dragonyule Nefaria" ~ "Support",
+    Name == "Dragonyule Xander" ~ "Attack",
+    Name == "Edward" ~ "Heal",
+    Name == "Eleonora" ~ "Attack",
+    Name == "Elias" ~ "Defense",
+    Name == "Elisanne" ~ "Support",
+    Name == "Erik" ~ "Attack",
+    Name == "Estelle" ~ "Heal",
+    Name == "Euden" ~ "Attack",
+    Name == "Ezelith" ~ "Support",
+    Name == "Felicia" ~ "Heal",
+    Name == "Fjorm" ~ "Attack",
+    Name == "Fleur" ~ "Attack",
+    Name == "Francesca" ~ "Support",
+    Name == "Fritz" ~ "Support",
+    Name == "Gala Ranzal" ~ "Attack",
+    Name == "Gala Sarisse" ~ "Support",
+    Name == "Halloween Althemia" ~ "Heal",
+    Name == "Halloween Edward" ~ "Attack",
+    Name == "Halloween Elisanne" ~ "Support",
+    Name == "Hawk" ~ "Attack",
+    Name == "Heinwald" ~ "Heal",
+    Name == "Hildegarde" ~ "Heal",
+    Name == "Hope" ~ "Heal",
+    Name == "Ieyasu" ~ "Attack",
+    Name == "Irfan" ~ "Support",
+    Name == "Jakob" ~ "Defense",
+    Name == "Joe" ~ "Attack",
+    Name == "Johanna" ~ "Defense",
+    Name == "Julietta" ~ "Defense",
+    Name == "Jurota" ~ "Attack",
+    Name == "Karina" ~ "Defense",
+    Name == "Karl" ~ "Support",
+    Name == "Kleimann" ~ "Support",
+    Name == "Ku Hai" ~ "Attack",
+    Name == "Laranoa" ~ "Support",
+    Name == "Lily" ~ "Attack",
+    Name == "Lin You" ~ "Attack",
+    Name == "Linus" ~ "Defense",
+    Name == "Louise" ~ "Support",
+    Name == "Lowen" ~ "Heal",
+    Name == "Luca" ~ "Support",
+    Name == "Lucretia" ~ "Attack",
+    Name == "Luther" ~ "Support",
+    Name == "Malka" ~ "Support",
+    Name == "Malora" ~ "Support",
+    Name == "Maribelle" ~ "Attack",
+    Name == "Marth" ~ "Attack",
+    Name == "Marty" ~ "Defense",
+    Name == "Melody" ~ "Support",
+    Name == "Melsa" ~ "Support",
+    Name == "Mikoto" ~ "Attack",
+    Name == "Musashi" ~ "Attack",
+    Name == "Naveed" ~ "Attack",
+    Name == "Nefaria" ~ "Support",
+    Name == "Nicolas" ~ "Attack",
+    Name == "Odetta" ~ "Attack",
+    Name == "Orion" ~ "Support",
+    Name == "Orsem" ~ "Attack",
+    Name == "Philia" ~ "Attack",
+    Name == "Pia" ~ "Defense",
+    Name == "Pietro" ~ "Defense",
+    Name == "Raemond" ~ "Attack",
+    Name == "Ranzal" ~ "Defense",
+    Name == "Rawn" ~ "Support",
+    Name == "Renelle" ~ "Support",
+    Name == "Rex" ~ "Attack",
+    Name == "Ricardt" ~ "Heal",
+    Name == "Rodrigo" ~ "Attack",
+    Name == "Ryozen" ~ "Defense",
+    Name == "Sazanka" ~ "Defense",
+    Name == "Sinoa" ~ "Support",
+    Name == "Sophie" ~ "Heal",
+    Name == "Su Fang" ~ "Attack",
+    Name == "Sylas" ~ "Support",
+    Name == "Taro" ~ "Attack",
+    Name == "Thaniel" ~ "Heal",
+    Name == "Valentine's Ezelith" ~ "Support",
+    Name == "Valentine's Hildegarde" ~ "Heal",
+    Name == "Valentine's Orion" ~ "Support",
+    Name == "Vanessa" ~ "Attack",
+    Name == "Verica" ~ "Heal",
+    Name == "Veronica" ~ "Attack",
+    Name == "Vice" ~ "Support",
+    Name == "Vida" ~ "Support",
+    Name == "Vixel" ~ "Heal",
+    Name == "Waike" ~ "Support",
+    Name == "Xainfried" ~ "Support",
+    Name == "Xander" ~ "Attack",
+    Name == "Xania" ~ "Attack",
+    Name == "Xiao Lei" ~ "Support",
+    Name == "Yue" ~ "Defense",
+    Name == "Zace" ~ "Attack",
+    Name == "Zardin" ~ "Defense"))
 
 path <- getwd()
 
-write_rds(char, path = paste0(path, "/Characters plot shiny app/characterlist.rds"))
-
-# plotdl <- function(data){
-#   myplot <- ggplot(data, aes(x = HP, y = STR, colour = Element,
-#              label = Name,
-#              label2 = STR,
-#              label3 = HP,
-#              label4 = Weapon)) +
-#   geom_point(size = 3) +
-#   scale_color_manual(values = c("Flame" = "red2", 
-#                                 "Water" = "dodgerblue1",
-#                                 "Wind" = "green",
-#                                 "Light" = "gold",
-#                                 "Shadow" = "purple")) +
-#   theme_bw() + 
-#   theme(panel.border = element_blank(), 
-#         panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank(), 
-#         axis.line = element_line(colour = "black"))
-#   
-#   # return plot
-#   myplot
-# }
-# 
-# legend.format <- list(font = list(family = "sans-serif",
-#                                   size = 12,
-#                                   color = "black"),
-#                       bgcolor = "lavender",
-#                       bordercolor = "white",
-#                       borderwidth = 2)
-
-# p2 <- char %>%
-#   filter(Weapon == "Staff") %>%
-#   ggplot(aes(x = HP, y = STR,
-#              label = Name,
-#              label2 = STR,
-#              label3 = HP,
-#              label4 = Weapon)) +
-#   geom_point(aes(colour = Element), size = 3) +
-#   scale_color_manual(values = c("Flame" = "red2", 
-#                                 "Water" = "dodgerblue1",
-#                                 "Wind" = "green",
-#                                 "Light" = "gold",
-#                                 "Shadow" = "purple")) +
-#   geom_smooth(aes(x = HP, y = STR), inherit.aes = F, se = F,
-#               method = "lm", 
-#               formula = y ~ x, 
-#               colour = "black")
-# p2
-# 
-# legend.format <- list(font = list(family = "sans-serif",
-#                                   size = 12,
-#                                   color = "black"),
-#                       bgcolor = "gainsboro",
-#                       bordercolor = "white",
-#                       borderwidth = 2)
-# 
-# p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
-#   layout(legend = legend.format)
-# p
-# # p + geom_abline(slope = 1, intercept = 0) +
-# #   lims(x = c(600,850), y = c(390,750))
-# 
-
-
+write_rds(char, path = paste0(path, "/Characters plot shiny app/character_042019buff.rds"))

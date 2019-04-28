@@ -1,9 +1,9 @@
 library(shiny)
 library(plotly)
 library(tidyverse)
-library(DT)
+library(rsconnect)
 
-charlist <- read_rds("characterlist.rds")
+charlist <- read_rds("character_042019buff.rds")
 
 # user interface
 ui <- fluidPage(
@@ -56,8 +56,7 @@ server <- function(input, output) {
       myplot <- ggplot(df, aes(x = HP, y = STR, colour = Element,
                                  label = Name,
                                  label2 = STR,
-                                 label3 = HP,
-                                 label4 = Weapon)) +
+                                 label3 = HP)) +
         geom_point(position = position_jitter(h = 2, w = 2),
                    size = 2) +
         scale_color_manual(values = c("Flame" = "red2", 
@@ -155,8 +154,8 @@ server <- function(input, output) {
         filter(Class == input$Class)
     }
 
-    data <- data %>%
-      select(-Def, -Skill1, -Skill2, -Released)
+    # data <- data %>%
+    #   select(-Def, -Skill1, -Skill2, -Released)
   })
 }
 
