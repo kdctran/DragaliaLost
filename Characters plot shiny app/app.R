@@ -153,8 +153,7 @@ server <- function(input, output) {
         filter(Class == input$Class)
     }
 
-    # data <- data %>%
-    #   select(-Def, -Skill1, -Skill2, -Released)
+    data
   })
 }
 
