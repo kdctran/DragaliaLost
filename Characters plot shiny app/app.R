@@ -1,7 +1,6 @@
 library(shiny)
 library(plotly)
 library(tidyverse)
-library(rsconnect)
 
 charlist <- read_rds("character_042019buff.rds")
 
@@ -161,3 +160,10 @@ server <- function(input, output) {
 
 # run the application 
 shinyApp(ui = ui, server = server)
+
+#################
+# to deploy app:
+# 1. rsconnect
+# 2. get token, then setAccountInfo
+# deployApp(<file path to app.R>)
+
