@@ -12,10 +12,9 @@ ui <- fluidPage(
   # sidebar
   sidebarLayout(
     sidebarPanel(
-      selectInput(inputId = "Rarity", 
-                  selected = NULL,
-                  label = "Select a Rarity",
-                  choices = c("All", distinct(charlist, Rarity))),
+      checkboxGroupInput(inputId = "Rarity", label = h3("Select Rarity"), 
+                         choices = c(3, 4, 5),
+                         selected = c(3, 4, 5)),
       
       selectInput(inputId = "Element", 
                   label = "Select an Element",
@@ -38,7 +37,7 @@ ui <- fluidPage(
     # main panel
     mainPanel(
       # plotly instead of plot because using Plotly package
-      plotlyOutput(outputId = "charPlot"),
+      plotlyOutput(outputId = "charPlot", width = "60%"),
       tableOutput(outputId = "table")
     )
   )
@@ -76,10 +75,13 @@ server <- function(input, output) {
     # filter by element/weapon/class
     data <- charlist 
     
-    if (input$Rarity != "All") {
+    if (data$Rarity %in% input$Rarity){
       data <- data %>%
-        filter(Rarity == input$Rarity)
+        filter(Rarity %in% input$Rarity)
+    } else {
+      print("Select a Rarity")
     }
+      
     if (input$Element != "All") {
       data <- data %>%
         filter(Element == input$Element)
@@ -164,5 +166,5 @@ shinyApp(ui = ui, server = server)
 # to deploy app:
 # 1. rsconnect
 # 2. get token, then setAccountInfo
-# deployApp(<file path to app.R>)
+# deployApp("C:/Users/User/Documents/Dragalia Lost/Characters plot shiny app")
 
