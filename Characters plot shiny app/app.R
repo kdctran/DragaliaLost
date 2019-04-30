@@ -72,10 +72,8 @@ server <- function(input, output) {
     }
     
     # filter by element/weapon/class
-    data <- charlist 
-    
-      data <- data %>%
-        filter(Rarity %in% input$Rarity)
+    data <- charlist %>%
+      filter(Rarity %in% input$Rarity)
 
     if (input$Element != "All") {
       data <- data %>%
@@ -131,10 +129,9 @@ server <- function(input, output) {
   })
   
   output$table <- renderTable({
-    data <- charlist 
     
-    data <- data %>%
-        filter(Rarity %in% input$Rarity)
+    data <- charlist %>%
+      filter(Rarity %in% input$Rarity)
 
     if (input$Element != "All") {
       data <- data %>%
