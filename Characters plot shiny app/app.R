@@ -44,43 +44,16 @@ ui <- fluidPage(
 )
 
 
-# server function
 server <- function(input, output) {
-  
-  # filter by element/weapon/class
-  
-  
-  # data <- reactive ({
-  #   validate(
-  #     need(input$Rarity, "Select at least 1 Rarity")
-  #   )
-  #   
-  #   charlist
-  #   
-  #   subset <-  filter(charlist, Rarity %in% input$Rarity)
-  # 
-  #   if (input$Element != "All") {
-  #     subset <- filter(subset, Element == input$Element)
-  #   }
-  #   if (input$Weapon != "All") {
-  #    subset <- filter(subset, Weapon == input$Weapon)
-  #   }
-  #   if (input$Class != "All") {
-  #    subset <- filter(subset, Class == input$Class)
-  #   }
-  # })
-  
   output$charPlot <- renderPlotly({
     
-    data <- charlist
-
     # functions for plotting and best fit equation
     # plot function
     plotdl <- function(df){
       myplot <- ggplot(df, aes(x = HP, y = STR, colour = Element,
-                                 label = Name,
-                                 label2 = STR,
-                                 label3 = HP)) +
+                               label = Name,
+                               label2 = STR,
+                               label3 = HP)) +
         geom_point(position = position_jitter(h = 2, w = 2),
                    size = 2) +
         scale_color_manual(values = c("Flame" = "red2", 
@@ -98,11 +71,35 @@ server <- function(input, output) {
       myplot
     }
     
+    # filter by element/weapon/class
+    data <- charlist 
+    
+      data <- data %>%
+        filter(Rarity %in% input$Rarity)
+
+    if (input$Element != "All") {
+      data <- data %>%
+        filter(Element == input$Element)
+    }
+    if (input$Weapon != "All") {
+      data <- data %>%
+        filter(Weapon == input$Weapon)
+    }
+    if (input$Class != "All") {
+      data <- data %>%
+        filter(Class == input$Class)
+    }
+    
     # best fit line
     m <- lm(data$STR ~ data$HP)
     intercept <- signif(coef(m)[1], digits = 2)
     slope <- signif(coef(m)[2], digits = 2)
     textlab <- paste("STR = ", slope, "HP + ", intercept, sep = "")
+    
+    # filter for best fit line
+    # if ((input$Weapon != "All") & (input$Class != "All")) {
+    #   
+    # }
     
     legend.format <- list(font = list(family = "sans-serif",
                                       size = 12,
@@ -125,7 +122,7 @@ server <- function(input, output) {
     p <- p + annotate("text", x = display.x, y = display.y,
                       label = textlab,
                       color="black", size = 4)
-
+    
     p <- ggplotly(p, tooltip = c("label", "label2", "label3", "label4")) %>%
       # hide plotly mode bar
       config(displayModeBar = F) %>% 
@@ -136,10 +133,9 @@ server <- function(input, output) {
   output$table <- renderTable({
     data <- charlist 
     
-    if (input$Rarity != "All") {
-      data <- data %>%
-        filter(Rarity == input$Rarity)
-    }
+    data <- data %>%
+        filter(Rarity %in% input$Rarity)
+
     if (input$Element != "All") {
       data <- data %>%
         filter(Element == input$Element)
@@ -152,7 +148,7 @@ server <- function(input, output) {
       data <- data %>%
         filter(Class == input$Class)
     }
-
+    
     data
   })
 }
