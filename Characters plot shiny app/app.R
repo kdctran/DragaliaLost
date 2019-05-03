@@ -8,6 +8,7 @@ charlist <- read_rds("character_042019buff.rds")
 ui <- fluidPage(
   # title
   titlePanel("Dragalia Lost - Characters' Strength vs. HP"),
+  titlePanel(h6("Data taken from Dragalia Lost gamepedia site")),
   
   # sidebar
   sidebarLayout(
@@ -49,7 +50,7 @@ server <- function(input, output) {
     
     # functions for plotting and best fit equation
     # plot function
-    plotdl <- function(df){
+    plotbyele <- function(df){
       myplot <- ggplot(df, aes(x = HP, y = STR, colour = Element,
                                label = Name,
                                label2 = STR,
@@ -71,7 +72,34 @@ server <- function(input, output) {
       myplot
     }
     
+    # plot by star rarity
+    plotbystar <- function(df){
+      myplot <- ggplot(df, aes(x = HP, y = STR,
+                               label = Name,
+                               label2 = STR,
+                               label3 = HP)) +
+        geom_point(aes(fill = as.character(Rarity)),
+                   position = position_jitter(h = 2, w = 2),
+                   size = 2,
+                   stroke = 0.2) +
+        scale_fill_manual(values = c("5" = "red2", 
+                                      "4" = "dodgerblue1",
+                                      "3" = "green")) +
+        theme_bw() + 
+        theme(panel.border = element_blank(), 
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(), 
+              axis.line = element_line(colour = "black"))
+      
+      # return plot
+      myplot
+    }
+    
     # filter by element/weapon/class
+    validate(
+      need(input$Rarity, "Select at least 1 Rarity")
+    )
+    
     data <- charlist %>%
       filter(Rarity %in% input$Rarity)
 
@@ -106,7 +134,7 @@ server <- function(input, output) {
                           bordercolor = "white",
                           borderwidth = 3)
     
-    p <- plotdl(data)
+    p <- plotbystar(data)
     
     p <- p + geom_abline(intercept = intercept, slope = slope,
                          colour = "grey30", linetype = "dashed",
@@ -129,6 +157,10 @@ server <- function(input, output) {
   })
   
   output$table <- renderTable({
+    
+    validate(
+      need(input$Rarity, "Select at least 1 Rarity")
+    )
     
     data <- charlist %>%
       filter(Rarity %in% input$Rarity)
