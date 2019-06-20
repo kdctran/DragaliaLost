@@ -1,8 +1,9 @@
 library(shiny)
 library(plotly)
 library(tidyverse)
+library(DT)
 
-charlist <- read_rds("character_042019buff.rds")
+charlist <- read_rds("character_gsheet.rds")
 
 # user interface
 ui <- fluidPage(
@@ -46,6 +47,12 @@ ui <- fluidPage(
 
 
 server <- function(input, output) {
+  
+  # data <- reactive({
+  #   data <- charlist
+  #   return(data)
+  # })
+  # 
   output$charPlot <- renderPlotly({
     
     # functions for plotting and best fit equation
@@ -78,19 +85,19 @@ server <- function(input, output) {
                                label = Name,
                                label2 = STR,
                                label3 = HP)) +
-        geom_point(aes(fill = as.character(Rarity)),
-                   position = position_jitter(h = 2, w = 2),
+        geom_point(aes(fill = factor(Rarity)),
+                   position = position_jitter(h = 1, w = 1),
                    size = 2,
-                   stroke = 0.2) +
-        scale_fill_manual(values = c("5" = "red2", 
-                                     "4" = "dodgerblue1",
-                                     "3" = "green")) +
+                   stroke = 0.1) +
+        scale_fill_manual(name = "Rarity",
+                          labels = c("3 Star","4 Star","5 Star"),
+                          values = c("blue", "yellow1", "red"),
+                          drop = F) +
         theme_bw() + 
         theme(panel.border = element_blank(), 
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(), 
-              axis.line = element_line(colour = "black")) + 
-        guides(fill=guide_legend(title="Rarity"))
+              axis.line = element_line(colour = "black")) 
       
       # return plot
       myplot
