@@ -83,13 +83,14 @@ server <- function(input, output) {
                    size = 2,
                    stroke = 0.2) +
         scale_fill_manual(values = c("5" = "red2", 
-                                      "4" = "dodgerblue1",
-                                      "3" = "green")) +
+                                     "4" = "dodgerblue1",
+                                     "3" = "green")) +
         theme_bw() + 
         theme(panel.border = element_blank(), 
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(), 
-              axis.line = element_line(colour = "black"))
+              axis.line = element_line(colour = "black")) + 
+        guides(fill=guide_legend(title="Rarity"))
       
       # return plot
       myplot
@@ -189,5 +190,6 @@ shinyApp(ui = ui, server = server)
 # to deploy app:
 # 1. rsconnect
 # 2. get token, then setAccountInfo
+# library(rsconnect)
 # deployApp("C:/Users/User/Documents/Dragalia Lost/Characters plot shiny app")
 

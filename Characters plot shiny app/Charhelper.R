@@ -19,7 +19,8 @@ char <- list_gamepedia %>%
          Ability2 = "Ability 2Ability shown is the max upgraded ability.",
          Ability3 = "Ability 3Ability shown is the max upgraded ability.",
          ReleaseDate = "Release Date") %>%
-  select(Name, Class, Rarity, Element, Weapon, HP, STR, Obtain)
+  select(Name, Class, Rarity, Element, Weapon, HP, STR, 
+         Coability, Ability1, Ability2, Ability3, Obtain)
 
 char <- char %>%
   mutate(Class = case_when(
@@ -34,6 +35,7 @@ char <- char %>%
     Name == "Annelie" ~ "Support",
     Name == "Aoi" ~ "Attack",
     Name == "Aurien" ~ "Support",
+    Name == "Beautician Zardin" ~ "Attack",
     Name == "Berserker" ~ "Defense",
     Name == "Botan" ~ "Defense",
     Name == "Celliera" ~ "Attack",
@@ -97,6 +99,7 @@ char <- char %>%
     Name == "Naveed" ~ "Attack",
     Name == "Nefaria" ~ "Support",
     Name == "Nicolas" ~ "Attack",
+    Name == "Norwin" ~ "Attack",
     Name == "Odetta" ~ "Attack",
     Name == "Orion" ~ "Support",
     Name == "Orsem" ~ "Attack",
@@ -132,6 +135,7 @@ char <- char %>%
     Name == "Xander" ~ "Attack",
     Name == "Xania" ~ "Attack",
     Name == "Xiao Lei" ~ "Support",
+    Name == "Yachiyo" ~ "Attack",
     Name == "Yue" ~ "Defense",
     Name == "Zace" ~ "Attack",
     Name == "Zardin" ~ "Defense"))
